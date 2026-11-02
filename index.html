@@ -69,26 +69,38 @@
         </div>
 
         <!-- ================= قالب الـ PDF المخفي (يُترجم لملف فوراً) ================= -->
-        <div id="pdfReport" style="display: none; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; padding: 15px; background: white; color: #1e293b; width: 800px;">
-            <div style="text-align: center; border-bottom: 2px solid #047857; padding-bottom: 10px; margin-bottom: 15px;">
-                <h2 style="font-size: 20px; font-weight: bold; color: #047857; margin: 0 0 4px 0;">مسجد القدسي</h2>
-                <p style="font-size: 12px; color: #334155; margin: 0 0 6px 0; font-weight: 600;">تقرير حلقات تحفيظ القرآن الكريم</p>
-                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #475569; margin-top: 6px;">
-                    <span>المعلم المسؤول: <strong id="printTeacherName"></strong></span>
-                    <span>تاريخ الإصدار: <strong id="printDate"></strong></span>
+        <div id="pdfReport" style="display: none; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; box-sizing: border-box; padding: 28px; background: #ffffff; color: #1f2937; width: 1000px;">
+            <div style="height: 5px; background: #b68b45; margin: -28px -28px 22px;"></div>
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #dce5df; padding-bottom: 18px; margin-bottom: 18px;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 54px; height: 54px; border: 2px solid #176b52; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #176b52; font-size: 22px; font-weight: bold;">ق</div>
+                    <div>
+                        <p style="font-size: 11px; color: #718078; margin: 0 0 4px;">حلقات تحفيظ القرآن الكريم</p>
+                        <h2 style="font-size: 23px; font-weight: 700; color: #155b46; margin: 0;">مسجد القدسي</h2>
+                    </div>
+                </div>
+                <div style="text-align: left; color: #53635a; font-size: 11px; line-height: 1.9;">
+                    <div>المعلم المسؤول: <strong id="printTeacherName" style="color: #263a30;"></strong></div>
+                    <div>تاريخ الإصدار: <strong id="printDate" style="color: #263a30;"></strong></div>
                 </div>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: right;">
+            <div style="display: flex; align-items: center; justify-content: space-between; background: #f3f7f4; border-right: 4px solid #176b52; padding: 10px 14px; margin-bottom: 15px;">
+                <div style="font-size: 13px; font-weight: 700; color: #254637;">سجل الطلاب</div>
+                <div style="font-size: 11px; color: #53635a;">إجمالي الطلاب: <strong id="printStudentCount" style="color: #155b46;"></strong></div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: right;">
                 <thead>
                     <tr style="background-color: #047857; color: white;">
-                        <th style="border: 1px solid #047857; padding: 6px; text-align: center; width: 30px;">#</th>
-                        <th style="border: 1px solid #047857; padding: 6px;">اسم الطالب واسم الأب</th>
-                        <th style="border: 1px solid #047857; padding: 6px; text-align: center; width: 60px;">القراءة</th>
-                        <th style="border: 1px solid #047857; padding: 6px; text-align: center; width: 60px;">التجويد</th>
-                        <th style="border: 1px solid #047857; padding: 6px;">مقدار الحفظ</th>
-                        <th style="border: 1px solid #047857; padding: 6px; text-align: center; width: 55px;">الدوام (9-10)</th>
-                        <th style="border: 1px solid #047857; padding: 6px;">الإنجاز (قرآن وغيره)</th>
+                        <th style="border: 1px solid #176b52; padding: 9px 7px; text-align: center; width: 34px;">#</th>
+                        <th style="border: 1px solid #176b52; padding: 9px 8px; width: 16%;">اسم الطالب</th>
+                        <th style="border: 1px solid #176b52; padding: 9px 8px; width: 16%;">اسم الأب</th>
+                        <th style="border: 1px solid #176b52; padding: 9px 7px; text-align: center; width: 72px;">القراءة</th>
+                        <th style="border: 1px solid #176b52; padding: 9px 7px; text-align: center; width: 72px;">التجويد</th>
+                        <th style="border: 1px solid #176b52; padding: 9px 8px;">مقدار الحفظ</th>
+                        <th style="border: 1px solid #176b52; padding: 9px 7px; text-align: center; width: 78px;">الدوام (9-10)</th>
+                        <th style="border: 1px solid #176b52; padding: 9px 8px;">الإنجاز (قرآن وغيره)</th>
                     </tr>
                 </thead>
                 <tbody id="pdfTableBody">
@@ -96,9 +108,9 @@
                 </tbody>
             </table>
 
-            <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 10px; color: #334155;">
-                <div>توقيع المعلم: ........................................</div>
-                <div>ختم المسجد / الإدارة: ........................................</div>
+            <div style="margin-top: 24px; padding-top: 12px; border-top: 1px solid #dce5df; display: flex; justify-content: space-between; font-size: 10px; color: #53635a;">
+                <div>توقيع المعلم: <span style="color: #a7b3ac;">........................................</span></div>
+                <div>ختم المسجد / الإدارة: <span style="color: #a7b3ac;">........................................</span></div>
             </div>
         </div>
         <!-- ================= نهاية القالب ================= -->
@@ -377,17 +389,19 @@
 
             document.getElementById('printTeacherName').innerText = teacherName;
             document.getElementById('printDate').innerText = new Date().toLocaleDateString('ar-SA');
+            document.getElementById('printStudentCount').innerText = students.length;
 
             const tbody = document.getElementById('pdfTableBody');
             tbody.innerHTML = students.map((s, idx) => `
-                <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
-                    <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${idx + 1}</td>
-                    <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: 600;">${s.name} <span style="font-weight: normal; color: #64748b; font-size: 9px;">(بن ${s.fatherName})</span></td>
-                    <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${s.readingLevel}</td>
-                    <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${s.tajweedLevel}</td>
-                    <td style="border: 1px solid #cbd5e1; padding: 6px;">${s.memorization || '-'}</td>
-                    <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${s.attendance || '-'}</td>
-                    <td style="border: 1px solid #cbd5e1; padding: 6px;">${s.achievement || '-'}</td>
+                <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f4f7f5'}; page-break-inside: avoid;">
+                    <td style="border: 1px solid #dce5df; padding: 8px 7px; text-align: center; color: #718078;">${idx + 1}</td>
+                    <td style="border: 1px solid #dce5df; padding: 8px; font-weight: 600; color: #263a30;">${s.name}</td>
+                    <td style="border: 1px solid #dce5df; padding: 8px;">${s.fatherName}</td>
+                    <td style="border: 1px solid #dce5df; padding: 8px 7px; text-align: center;">${s.readingLevel}</td>
+                    <td style="border: 1px solid #dce5df; padding: 8px 7px; text-align: center;">${s.tajweedLevel}</td>
+                    <td style="border: 1px solid #dce5df; padding: 8px;">${s.memorization || '-'}</td>
+                    <td style="border: 1px solid #dce5df; padding: 8px 7px; text-align: center;">${s.attendance || '-'}</td>
+                    <td style="border: 1px solid #dce5df; padding: 8px;">${s.achievement || '-'}</td>
                 </tr>
             `).join('');
 
