@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة حلقات القرآن - مسجد القدسي</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf Library for instant file download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-20">
+
+    <!-- Header -->
+    <header class="bg-emerald-800 text-white shadow-md sticky top-0 z-40 border-b-4 border-amber-500">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center gap-2">
+                <div class="bg-amber-500 p-2 rounded-xl text-emerald-950 font-bold">
+                    <i class="fa-solid fa-mosque text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold">مسجد القدسي</h1>
+                    <p class="text-[11px] text-emerald-200">حلقات تحفيظ القرآن الكريم</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 bg-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-700 w-full sm:w-auto justify-between">
+                <div class="flex items-center gap-1.5 text-xs">
+                    <span class="text-emerald-300">المعلم:</span>
+                    <span id="displayTeacherName" class="font-bold text-amber-300">غير محدد </span>
+                </div>
+                <button onclick="editTeacherName()" class="text-emerald-200 hover:text-white text-xs bg-emerald-800 px-2 py-0.5 rounded border border-emerald-600">
+                    <i class="fa-solid fa-pen text-[10px]"></i> تعديل
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-3xl mx-auto px-4 mt-4">
+        
+        <!-- Quick Stats & Actions Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div class="bg-white p-3.5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">إجمالي الطلاب المسجلين</p>
+                    <h3 id="totalStudentsCount" class="text-xl font-bold text-emerald-700 mt-0.5">0</h3>
+                </div>
+                <div class="bg-emerald-50 text-emerald-600 w-10 h-10 rounded-xl flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openModal()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-3 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>إضافة طالب جديد</span>
+                </button>
+                <button id="pdfBtn" onclick="exportPDF()" class="bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 px-3 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-file-pdf text-red-400"></i>
+                    <span>تنزيل PDF فوري</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= قالب الـ PDF المخفي (يُترجم لملف فوراً) ================= -->
+        <div id="pdfReport" style="display: none; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; padding: 15px; background: white; color: #1e293b; width: 800px;">
+            <div style="text-align: center; border-bottom: 2px solid #047857; padding-bottom: 10px; margin-bottom: 15px;">
+                <h2 style="font-size: 20px; font-weight: bold; color: #047857; margin: 0 0 4px 0;">مسجد القدسي</h2>
+                <p style="font-size: 12px; color: #334155; margin: 0 0 6px 0; font-weight: 600;">تقرير حلقات تحفيظ القرآن الكريم</p>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #475569; margin-top: 6px;">
+                    <span>المعلم المسؤول: <strong id="printTeacherName"></strong></span>
+                    <span>تاريخ الإصدار: <strong id="printDate"></strong></span>
+                </div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: right;">
+                <thead>
+                    <tr style="background-color: #047857; color: white;">
+                        <th style="border: 1px solid #047857; padding: 6px; text-align: center; width: 30px;">#</th>
+                        <th style="border: 1px solid #047857; padding: 6px;">اسم الطالب واسم الأب</th>
+                        <th style="border: 1px solid #047857; padding: 6px; text-align: center; width: 60px;">القراءة</th>
+                        <th style="border: 1px solid #047857; padding: 6px; text-align: center; width: 60px;">التجويد</th>
+                        <th style="border: 1px solid #047857; padding: 6px;">مقدار الحفظ</th>
+                        <th style="border: 1px solid #047857; padding: 6px; text-align: center; width: 55px;">الدوام (9-10)</th>
+                        <th style="border: 1px solid #047857; padding: 6px;">الإنجاز (قرآن وغيره)</th>
+                    </tr>
+                </thead>
+                <tbody id="pdfTableBody">
+                    <!-- ديناميكي -->
+                </tbody>
+            </table>
+
+            <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 10px; color: #334155;">
+                <div>توقيع المعلم: ........................................</div>
+                <div>ختم المسجد / الإدارة: ........................................</div>
+            </div>
+        </div>
+        <!-- ================= نهاية القالب ================= -->
+
+        <!-- Search Bar -->
+        <div class="mb-4 relative">
+            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                <i class="fa-solid fa-search text-xs"></i>
+            </span>
+            <input type="text" id="searchInput" oninput="filterStudents()" placeholder="ابحث عن اسم الطالب أو اسم الأب..." class="w-full bg-white border border-slate-300 rounded-xl py-2.5 pr-9 pl-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
+        </div>
+
+        <!-- Students List -->
+        <div id="studentsContainer" class="space-y-3">
+            <!-- Dynamically populated -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-10 bg-white rounded-xl border border-dashed border-slate-300 mt-2">
+            <div class="bg-emerald-50 text-emerald-600 w-12 h-12 rounded-full flex items-center justify-center text-xl mx-auto mb-2">
+                <i class="fa-solid fa-clipboard-question"></i>
+            </div>
+            <h3 class="font-bold text-slate-700 text-sm">لا توجد بيانات طلاب مسجلة بعد</h3>
+            <p class="text-slate-500 text-xs mt-1 mb-3">اضغط على زر "إضافة طالب جديد" للبدء.</p>
+            <button onclick="openModal()" class="bg-emerald-600 text-white text-xs font-medium px-3.5 py-2 rounded-lg">إضافة طالب الآن</button>
+        </div>
+
+    </main>
+
+    <!-- Modal Form (Add / Edit Student) -->
+    <div id="studentModal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-xl shadow-xl max-h-[90vh] flex flex-col overflow-hidden">
+            
+            <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+                <h3 id="modalTitle" class="font-bold text-slate-800 text-sm">إضافة طالب جديد</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 w-7 h-7 rounded-full flex items-center justify-center bg-white shadow-xs">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-4 overflow-y-auto space-y-3 flex-1">
+                <form id="studentForm" onsubmit="saveStudent(event)">
+                    <input type="hidden" id="studentId">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">اسم الطالب <span class="text-red-500">*</span></label>
+                            <input type="text" id="studentName" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">اسم الأب <span class="text-red-500">*</span></label>
+                            <input type="text" id="fatherName" required class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2.5">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">مستوى القراءة</label>
+                            <select id="readingLevel" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="جيد">جيد</option>
+                                <option value="وسط">وسط</option>
+                                <option value="ضعيف">ضعيف</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">مستوى التجويد</label>
+                            <select id="tajweedLevel" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="مبتدئ">مبتدئ</option>
+                                <option value="متوسط">متوسط</option>
+                                <option value="متقدم">متقدم</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-2.5">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">مقدار الحفظ</label>
+                        <input type="text" id="memorization" placeholder="مثال: سورة البقرة - 5 أجزاء" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2.5">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">أيام الدوام في شهر (9 و 10)</label>
+                            <input type="text" id="attendance" placeholder="مثال: 38 يوم" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">إنجاز الطالب (قرآن وغيره)</label>
+                            <input type="text" id="achievement" placeholder="مثال: حفظ حزبين" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
+                        <button type="button" onclick="closeModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3.5 py-2 rounded-lg text-xs">إلغاء</button>
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg text-xs shadow-sm">حفظ الطالب</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        let students = JSON.parse(localStorage.getItem('qudsi_students_v4')) || [];
+        let teacherName = localStorage.getItem('qudsi_teacher_v4') || 'أحمد عبد الله';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('displayTeacherName').innerText = teacherName;
+            renderStudents();
+        });
+
+        function editTeacherName() {
+            const newName = prompt("أدخل اسم المعلم الكريم:", teacherName);
+            if (newName !== null && newName.trim() !== "") {
+                teacherName = newName.trim();
+                localStorage.setItem('qudsi_teacher_v4', teacherName);
+                document.getElementById('displayTeacherName').innerText = teacherName;
+            }
+        }
+
+        function openModal(id = null) {
+            const modal = document.getElementById('studentModal');
+            const form = document.getElementById('studentForm');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            form.reset();
+            document.getElementById('studentId').value = '';
+
+            if (id !== null) {
+                modalTitle.innerText = "تعديل بيانات الطالب";
+                const student = students.find(s => s.id === id);
+                if (student) {
+                    document.getElementById('studentId').value = student.id;
+                    document.getElementById('studentName').value = student.name;
+                    document.getElementById('fatherName').value = student.fatherName;
+                    document.getElementById('readingLevel').value = student.readingLevel;
+                    document.getElementById('tajweedLevel').value = student.tajweedLevel;
+                    document.getElementById('memorization').value = student.memorization;
+                    document.getElementById('attendance').value = student.attendance;
+                    document.getElementById('achievement').value = student.achievement;
+                }
+            } else {
+                modalTitle.innerText = "إضافة طالب جديد";
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        function saveStudent(e) {
+            e.preventDefault();
+            const id = document.getElementById('studentId').value;
+            const studentData = {
+                id: id ? Number(id) : Date.now(),
+                name: document.getElementById('studentName').value.trim(),
+                fatherName: document.getElementById('fatherName').value.trim(),
+                readingLevel: document.getElementById('readingLevel').value,
+                tajweedLevel: document.getElementById('tajweedLevel').value,
+                memorization: document.getElementById('memorization').value.trim(),
+                attendance: document.getElementById('attendance').value.trim(),
+                achievement: document.getElementById('achievement').value.trim()
+            };
+
+            if (id) {
+                const index = students.findIndex(s => s.id === Number(id));
+                if (index !== -1) students[index] = studentData;
+            } else {
+                students.push(studentData);
+            }
+
+            persistAndRender();
+            closeModal();
+        }
+
+        function deleteStudent(id) {
+            if (confirm("هل أنت متأكد من حذف هذا الطالب؟")) {
+                students = students.filter(s => s.id !== id);
+                persistAndRender();
+            }
+        }
+
+        function persistAndRender() {
+            localStorage.setItem('qudsi_students_v4', JSON.stringify(students));
+            renderStudents();
+        }
+
+        function renderStudents(filteredList = null) {
+            const container = document.getElementById('studentsContainer');
+            const emptyState = document.getElementById('emptyState');
+            const totalCountElem = document.getElementById('totalStudentsCount');
+            
+            const listToRender = filteredList || students;
+            totalCountElem.innerText = students.length;
+
+            if (students.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            if (listToRender.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 bg-white rounded-xl border border-slate-200"><p class="text-slate-500 text-xs">لا توجد نتائج تطابق بحثك</p></div>`;
+                emptyState.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            
+            container.innerHTML = listToRender.map((s, index) => `
+                <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 relative">
+                    <div class="flex justify-between items-start gap-2 border-b border-slate-100 pb-2 mb-2.5">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-emerald-50 text-emerald-700 font-bold text-xs w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border border-emerald-200">
+                                ${index + 1}
+                            </span>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">${s.name} <span class="font-normal text-xs text-slate-500">بن ${s.fatherName}</span></h4>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="openModal(${s.id})" class="bg-slate-50 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 p-1.5 rounded-lg text-xs border border-slate-200" title="تعديل">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteStudent(${s.id})" class="bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-red-600 p-1.5 rounded-lg text-xs border border-slate-200" title="حذف">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                            <span class="text-slate-400 block mb-0.5 text-[10px]">القراءة والتجويد</span>
+                            <span class="font-bold text-slate-700">${s.readingLevel} - ${s.tajweedLevel}</span>
+                        </div>
+                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                            <span class="text-slate-400 block mb-0.5 text-[10px]">الدوام (9 و 10)</span>
+                            <span class="font-bold text-slate-700">${s.attendance || '-'}</span>
+                        </div>
+                        <div class="bg-slate-50 p-2 rounded-lg col-span-2 border border-slate-100">
+                            <span class="text-slate-400 block mb-0.5 text-[10px]">مقدار الحفظ</span>
+                            <span class="font-bold text-slate-700">${s.memorization || '-'}</span>
+                        </div>
+                        <div class="bg-slate-50 p-2 rounded-lg col-span-2 border border-slate-100">
+                            <span class="text-slate-400 block mb-0.5 text-[10px]">الإنجاز</span>
+                            <span class="font-bold text-slate-700">${s.achievement || '-'}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterStudents() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (!query) {
+                renderStudents();
+                return;
+            }
+            const filtered = students.filter(s => 
+                s.name.toLowerCase().includes(query) || s.fatherName.toLowerCase().includes(query)
+            );
+            renderStudents(filtered);
+        }
+
+        // توليد وتنزيل ملف الـ PDF مباشرة لحظة ضغط الزر
+        function exportPDF() {
+            if (students.length === 0) {
+                alert("لا توجد بيانات طلاب لتصديرها!");
+                return;
+            }
+
+            const btn = document.getElementById('pdfBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...';
+            btn.disabled = true;
+
+            document.getElementById('printTeacherName').innerText = teacherName;
+            document.getElementById('printDate').innerText = new Date().toLocaleDateString('ar-SA');
+
+            const tbody = document.getElementById('pdfTableBody');
+            tbody.innerHTML = students.map((s, idx) => `
+                <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+                    <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${idx + 1}</td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: 600;">${s.name} <span style="font-weight: normal; color: #64748b; font-size: 9px;">(بن ${s.fatherName})</span></td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${s.readingLevel}</td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${s.tajweedLevel}</td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px;">${s.memorization || '-'}</td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${s.attendance || '-'}</td>
+                    <td style="border: 1px solid #cbd5e1; padding: 6px;">${s.achievement || '-'}</td>
+                </tr>
+            `).join('');
+
+            const element = document.getElementById('pdfReport');
+            element.style.display = 'block';
+
+            const opt = {
+                margin:       10,
+                filename:     'تقرير_طلاب_مسجد_القدسي.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                element.style.display = 'none';
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error(err);
+                alert("حدث خطأ أثناء التنزيل. تأكد من اتصال الإنترنت.");
+                element.style.display = 'none';
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
